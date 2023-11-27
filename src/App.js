@@ -36,26 +36,49 @@ const init_col = col_arr[Math.floor(Math.random()*col_arr.length)];
 class App extends React.Component {
   constructor(props){
     super(props);
+    let quoteIdx = Math.floor(Math.random()*quote_arr.length);
+    let fullQuote = quote_arr[quoteIdx].quote + ' ' + quote_arr[quoteIdx].author; 
+    fullQuote = encodeURIComponent(fullQuote);
 
     this.state = {
-      quote_index: Math.floor(Math.random()*quote_arr.length),
+      quote_index: quoteIdx,
       styleBGObj: {backgroundColor: init_col},
-      styleColObj: {color: init_col}
+      styleColObj: {color: init_col},
+      styleHovObj: {color: init_col,backgroundColor: 'grey'},
+      hoverState: false,
+      urlQuote: fullQuote
     }
 
     this.handleOnClick=this.handleOnClick.bind(this);
+    this.handleMouseEnter = this.handleMouseEnter.bind(this);
+    this.handleMouseLeave = this.handleMouseLeave.bind(this);
   }
 
   handleOnClick(event){
     let quote_index = Math.floor(Math.random()*quote_arr.length);
     let col = col_arr[Math.floor(Math.random()*col_arr.length)];
+    let fullQuote = quote_arr[quote_index].quote + ' ' + quote_arr[quote_index].author; 
+    fullQuote = encodeURIComponent(fullQuote);
+    
     this.setState({
         quote_index: quote_index,
-        styleBGObj: {backgroundColor: col},
-        styleColObj: {color: col}
+        styleBGObj: {backgroundColor: col,color: '#ECE3CE'},
+        styleColObj: {color: col},
+        styleHovObj : {color: col,backgroundColor: 'grey'},
+        urlQuote: fullQuote
     });
   }
 
+  handleMouseEnter(event){
+    this.setState({
+      hoverState: true
+    })
+  }
+  handleMouseLeave(event){
+    this.setState({
+      hoverState: false
+    })
+  }
   render(){
   return (
     <div className="App">
@@ -84,20 +107,19 @@ class Body extends App {
           </div>
             <div id="banner">
               <div id="share">
-                <a id="tweet-quote" target='_blank' href='twitter.com/intent/tweet'>
+                <a id="tweet-quote" target='_blank' href={`https://twitter.com/intent/tweet/${this.state.urlQuote}`}>
                   <FontAwesomeIcon icon={faXTwitter} size={700} color={this.state.styleBGObj.backgroundColor}/>
                 </a>
                 <a id="fb-quote">
                   <FontAwesomeIcon icon={faFacebookSquare} size={700} color={this.state.styleBGObj.backgroundColor} />
                 </a>
                 </div>
-              <button id="new-quote" style={this.state.styleBGObj} onClick={this.handleOnClick}>New Quote</button>
+              <button id="new-quote" onMouseEnter={this.handleMouseEnter} onMouseLeave={this.handleMouseLeave} style={this.state.hoverState ? this.state.styleHovObj : this.state.styleBGObj} onClick={this.handleOnClick}>New Quote</button>
             </div>
         </div>
         <div id="creator">
               <p>By SpicyBolas</p>
         </div>
-  
       </div>
     );
   }
