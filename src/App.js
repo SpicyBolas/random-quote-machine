@@ -1,3 +1,4 @@
+//Import required packages
 import './App.css';
 import React from 'react';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
@@ -30,55 +31,88 @@ author: "- Abraham Lincoln"}
 //Create an array of background colors
 const col_arr = ['#4F6F52','#6a5acd','#ee82ee','#ffa500',
 '#00ff61','#00aeff','#ff0000'];
-
+//Take an initial color
 const init_col = col_arr[Math.floor(Math.random()*col_arr.length)];
 
+//Random Quote Machine App
 class App extends React.Component {
   constructor(props){
     super(props);
+    //Get random index for the quote object
     let quoteIdx = Math.floor(Math.random()*quote_arr.length);
+    //Concatenate the quote and convert for the URL for twitter
     let fullQuote = quote_arr[quoteIdx].quote + ' ' + quote_arr[quoteIdx].author; 
     fullQuote = encodeURIComponent(fullQuote);
 
     this.state = {
-      quote_index: quoteIdx,
-      styleBGObj: {backgroundColor: init_col},
-      styleColObj: {color: init_col},
-      styleHovObj: {color: init_col,backgroundColor: 'grey'},
-      hoverState: false,
-      urlQuote: fullQuote
+      quote_index: quoteIdx, //store quote array index
+      styleBGObj: {backgroundColor: init_col}, //Background color index
+      styleColObj: {color: init_col}, //text color
+      styleHovObj: {color: init_col,backgroundColor: 'grey'}, //Hover on Button style
+      hoverState: false, //is mouse hovering over the button?
+      urlQuote: fullQuote, //full quote for tweet
+      contHeight: {height: '20px'}, //initial height for quote
+      iter: 0 //counter to determine when the button has been clicked
     }
-
-    this.handleOnClick=this.handleOnClick.bind(this);
-    this.handleMouseEnter = this.handleMouseEnter.bind(this);
-    this.handleMouseLeave = this.handleMouseLeave.bind(this);
+    this.handleOnClick=this.handleOnClick.bind(this); //bind for button click
+    this.handleMouseEnter = this.handleMouseEnter.bind(this); //bind for hover on
+    this.handleMouseLeave = this.handleMouseLeave.bind(this); //bind for hover off
   }
-
+  //New quote button click
   handleOnClick(event){
+    //randomly select a quote
     let quote_index = Math.floor(Math.random()*quote_arr.length);
     let col = col_arr[Math.floor(Math.random()*col_arr.length)];
+    //convert into the full quote for the tweet url
     let fullQuote = quote_arr[quote_index].quote + ' ' + quote_arr[quote_index].author; 
     fullQuote = encodeURIComponent(fullQuote);
-    
-    this.setState({
+    //Set the state based on randomly selected values
+    this.setState((state,props)=>({
         quote_index: quote_index,
         styleBGObj: {backgroundColor: col,color: '#ECE3CE'},
         styleColObj: {color: col},
         styleHovObj : {color: col,backgroundColor: 'grey'},
-        urlQuote: fullQuote
-    });
+        urlQuote: fullQuote,
+        iter: state.iter +1
+    }));
   }
-
+  //switch hover mode to "on"
   handleMouseEnter(event){
     this.setState({
       hoverState: true
     })
   }
+  //switch hover mode to "off"
   handleMouseLeave(event){
     this.setState({
       hoverState: false
     })
   }
+  
+  //Update quote box height for first render
+  componentDidMount(){
+    document.title = "Random Quote Machine";
+    var textDiv = document.querySelector('#quote'); //get the quote property
+    var newHeight = 25+textDiv.scrollHeight; //calculate updated height
+    //Update the the height
+    this.setState({
+      contHeight: {height: newHeight+"px"}
+    })
+    
+};
+  //Update the box height ever time the button is clicked and iter updates
+  componentDidUpdate(prevProps,prevState){  
+    if(this.state.iter!==prevState.iter){
+      var textDiv = document.querySelector('#quote'); //extract element info
+      var newHeight = 25+textDiv.scrollHeight; //calculate new height
+      
+      //Update the box height
+      this.setState({
+        contHeight: {height: newHeight+"px"}
+      });
+      }
+  };
+
   render(){
   return (
     <div className="App">
@@ -96,7 +130,7 @@ class Body extends App {
   render(){
     return(
       <div className="body" style={this.state.styleBGObj}>
-        <div id="quote-box">
+        <div id="quote-box" style={this.state.contHeight}>
           <div id="quote">
             <div id="text">
               <p style={this.state.styleColObj}>{quote_arr[this.state.quote_index].quote}</p>
@@ -108,10 +142,7 @@ class Body extends App {
             <div id="banner">
               <div id="share">
                 <a id="tweet-quote" target='_blank' href={`https://twitter.com/intent/tweet/${this.state.urlQuote}`}>
-                  <FontAwesomeIcon icon={faXTwitter} size={700} color={this.state.styleBGObj.backgroundColor}/>
-                </a>
-                <a id="fb-quote">
-                  <FontAwesomeIcon icon={faFacebookSquare} size={700} color={this.state.styleBGObj.backgroundColor} />
+                  <FontAwesomeIcon icon={faXTwitter} size={700} color={this.state.styleBGObj.backgroundColor} style={{transition: 'color 1s linear'}}/>
                 </a>
                 </div>
               <button id="new-quote" onMouseEnter={this.handleMouseEnter} onMouseLeave={this.handleMouseLeave} style={this.state.hoverState ? this.state.styleHovObj : this.state.styleBGObj} onClick={this.handleOnClick}>New Quote</button>
